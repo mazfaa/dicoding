@@ -7,7 +7,7 @@ const calculator = {
 
 function inputDigit (digit) {
   /* calculator.displayNumber += digit; */
-  if (calculator.displayNumber === '0') {
+  if (calculator.displayNumber == '0') {
     calculator.displayNumber = digit;
   } else {
     calculator.displayNumber += digit;
@@ -58,7 +58,16 @@ function performCalculation () {
     result = parseInt(fo) - parseInt(so);
   }
 
+  const history = {
+    firstNumber: calculator.firstNumber,
+    secondNumber: calculator.displayNumber,
+    operator: calculator.operator,
+    result: result
+  };
+
+  putHistory(history);
   calculator.displayNumber = result;
+  renderHistory();
 }
 
 const buttons = document.getElementsByClassName('button');
