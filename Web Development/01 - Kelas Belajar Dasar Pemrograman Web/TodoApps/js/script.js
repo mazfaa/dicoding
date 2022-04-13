@@ -8,6 +8,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 const todos = [];
 const RENDER_EVENT = 'render-todo';
+const SAVED_EVENT = 'saved-todo';
+const STORAGE_KEY = 'TODO_APPS'; 
+const date = document.getElementById('date');
+date.valueAsDate = new Date();
+
+function isStorageExist () {
+  if (typeof(Storage) === undefined) {
+    alert('Browser Anda tidak mendukung local storage');
+    return false;
+  }
+
+  return true;
+}
 
 function generateId () {
   return +new Date();
@@ -23,6 +36,7 @@ function addTodo () {
   todos.push(todoObject);
 
   document.dispatchEvent(new Event(RENDER_EVENT));
+  saveData();
 }
 
 function generateTodoObject (id, task, timestamp, isCompleted) {
@@ -95,6 +109,7 @@ function addTaskToCompleted (todoId) {
   
   todoTarget.isCompleted = true;
   document.dispatchEvent(new Event(RENDER_EVENT));
+  saveData();
 }
 
 function findTodo (todoId) {
@@ -112,6 +127,7 @@ function removeTaskFromCompleted (todoId) {
   if (todoTarget === -1) return;
   todos.splice(todoTarget, 1);
   document.dispatchEvent(new Event(RENDER_EVENT));
+  saveData();
 }
 
 function undoTaskFromCompleted (todoId) {
@@ -119,6 +135,7 @@ function undoTaskFromCompleted (todoId) {
   if (todoTarget == null) return;
   todoTarget.isCompleted = false;
   document.dispatchEvent(new Event(RENDER_EVENT));
+  saveData();
 }
 
 function findTodoIndex (todoId) {
@@ -129,4 +146,31 @@ function findTodoIndex (todoId) {
   }
 
   return -1;
+}
+
+function saveData () {
+  if (isStorageExist()) {
+    const parsed = JSON.stringify(todos);
+    localStorage.setItem(STORAGE_KEY, parsed);
+    document.dispatchEvent(new Event(SAVED_EVENT));
+  }
+}
+
+document.addEventListener(SAVED_EVENT, function () {
+  console.log(localStorage.getItem(STORAGE_KEY));
+  const alertSavedSuccess = document.getElementById('saved-alert-success');
+  alertSavedSuccess.removeAttribute('hidden');
+  setInterval(() => {
+    alertSavedSuccess.setAttribute('hidden', true);
+  }, 3000);
+});
+
+function loadDataFromStorage () {
+  const serializedData = localStorage.getItem(STORAGE_KEY);
+  const data = JSON.parse(serializedData);
+  if (data !== null) {
+    for (const todo of data) {
+      todos.push(todo);
+    }
+  }
 }
